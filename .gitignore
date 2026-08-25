@@ -1,0 +1,8 @@
+# Arquivos gerados pelo Flex
+lex.yy.c
+
+# Executável gerado pela compilação
+cool
+
+# Arquivos objeto
+*.o
