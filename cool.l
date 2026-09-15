@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include "cool.tab.h"
 
 int comment_depth = 0;
 
@@ -18,6 +19,7 @@ void add_char_to_string(char c) {
 %}
 
 %option noyywrap
+
 %x COMMENT
 %x STRING
 
@@ -25,83 +27,33 @@ void add_char_to_string(char c) {
 
     /* PALAVRAS-CHAVE */
 
-[cC][lL][aA][sS][sS] {
-    printf("CLASS\n");
-}
-
-[eE][lL][sS][eE] {
-    printf("ELSE\n");
-}
-
-[fF][iI] {
-    printf("FI\n");
-}
-
-[iI][fF] {
-    printf("IF\n");
-}
-
-[iI][nN] {
-    printf("IN\n");
-}
-
-[iI][nN][hH][eE][rR][iI][tT][sS] {
-    printf("INHERITS\n");
-}
-
-[iI][sS][vV][oO][iI][dD] {
-    printf("ISVOID\n");
-}
-
-[lL][eE][tT] {
-    printf("LET\n");
-}
-
-[lL][oO][oO][pP] {
-    printf("LOOP\n");
-}
-
-[pP][oO][oO][lL] {
-    printf("POOL\n");
-}
-
-[tT][hH][eE][nN] {
-    printf("THEN\n");
-}
-
-[wW][hH][iI][lL][eE] {
-    printf("WHILE\n");
-}
-
-[cC][aA][sS][eE] {
-    printf("CASE\n");
-}
-
-[eE][sS][aA][cC] {
-    printf("ESAC\n");
-}
-
-[nN][eE][wW] {
-    printf("NEW\n");
-}
-
-[oO][fF] {
-    printf("OF\n");
-}
-
-[nN][oO][tT] {
-    printf("NOT\n");
-}
+[cC][lL][aA][sS][sS]                 { return CLASS; }
+[eE][lL][sS][eE]                     { return ELSE; }
+[fF][iI]                             { return FI; }
+[iI][fF]                             { return IF; }
+[iI][nN]                             { return IN; }
+[iI][nN][hH][eE][rR][iI][tT][sS]    { return INHERITS; }
+[iI][sS][vV][oO][iI][dD]             { return ISVOID; }
+[lL][eE][tT]                         { return LET; }
+[lL][oO][oO][pP]                     { return LOOP; }
+[pP][oO][oO][lL]                     { return POOL; }
+[tT][hH][eE][nN]                     { return THEN; }
+[wW][hH][iI][lL][eE]                 { return WHILE; }
+[cC][aA][sS][eE]                     { return CASE; }
+[eE][sS][aA][cC]                     { return ESAC; }
+[nN][eE][wW]                         { return NEW; }
+[oO][fF]                             { return OF; }
+[nN][oO][tT]                         { return NOT; }
 
 
     /* BOOLEANOS */
 
 t[rR][uU][eE] {
-    printf("BOOL_CONST: true\n");
+    return BOOL_CONST;
 }
 
 f[aA][lL][sS][eE] {
-    printf("BOOL_CONST: false\n");
+    return BOOL_CONST;
 }
 
 
@@ -144,83 +96,83 @@ f[aA][lL][sS][eE] {
 
     /* OPERADORES */
 
-"+" {
-    printf("PLUS\n");
-}
-
-"-" {
-    printf("MINUS\n");
-}
-
-"*" {
-    printf("MULT\n");
-}
-
-"/" {
-    printf("DIV\n");
-}
-
 "<=" {
-    printf("LE\n");
+    return LE;
 }
 
 "<-" {
-    printf("ASSIGN\n");
-}
-
-"<" {
-    printf("LT\n");
-}
-
-"=" {
-    printf("EQ\n");
-}
-
-"~" {
-    printf("NEG\n");
-}
-
-"@" {
-    printf("AT\n");
+    return ASSIGN;
 }
 
 "=>" {
-    printf("DARROW\n");
+    return DARROW;
+}
+
+"+" {
+    return '+';
+}
+
+"-" {
+    return '-';
+}
+
+"*" {
+    return '*';
+}
+
+"/" {
+    return '/';
+}
+
+"<" {
+    return '<';
+}
+
+"=" {
+    return '=';
+}
+
+"~" {
+    return '~';
+}
+
+"@" {
+    return '@';
 }
 
 
     /* SÍMBOLOS */
 
 "(" {
-    printf("LPAREN\n");
+    return '(';
 }
 
 ")" {
-    printf("RPAREN\n");
+    return ')';
 }
 
 "{" {
-    printf("LBRACE\n");
+    return '{';
 }
 
 "}" {
-    printf("RBRACE\n");
+    return '}';
 }
 
 ";" {
-    printf("SEMICOLON\n");
+    return ';';
 }
 
 ":" {
-    printf("COLON\n");
+    return ':';
 }
 
 "," {
-    printf("COMMA\n");
+    return ',';
 }
 
 "." {
-    printf("DOT\n");
+    return '.';
 }
 
 
@@ -235,12 +187,12 @@ f[aA][lL][sS][eE] {
 <STRING>\" {
     if (string_error) {
         printf("ERRO: string maior que 1024 caracteres\n");
+        BEGIN(INITIAL);
     } else {
         string_buffer[string_pos] = '\0';
-        printf("STR_CONST: \"%s\"\n", string_buffer);
+        BEGIN(INITIAL);
+        return STR_CONST;
     }
-
-    BEGIN(INITIAL);
 }
 
 <STRING>\\n {
@@ -285,21 +237,21 @@ f[aA][lL][sS][eE] {
     /* INTEIROS */
 
 [0-9]+ {
-    printf("INTEIRO: %s\n", yytext);
+    return INT_CONST;
 }
 
 
     /* IDENTIFICADORES DE OBJETO */
 
 [a-z][A-Za-z0-9_]* {
-    printf("OBJECT_ID: %s\n", yytext);
+    return OBJECT_ID;
 }
 
 
     /* IDENTIFICADORES DE TIPO */
 
 [A-Z][A-Za-z0-9_]* {
-    printf("TYPE_ID: %s\n", yytext);
+    return TYPE_ID;
 }
 
 
@@ -316,8 +268,3 @@ f[aA][lL][sS][eE] {
 }
 
 %%
-
-int main() {
-    yylex();
-    return 0;
-}
