@@ -106,6 +106,12 @@ feature:
    PARÂMETROS DE MÉTODOS
    ========================= */
 
+/*
+    soma(a : Int, b : Int) : Int {
+        a + b
+    };
+*/
+
 /* Um método pode não possuir parâmetros */
 formal_list:
     /* vazio */
