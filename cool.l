@@ -1,7 +1,15 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "cool.tab.h"
+
+/* contador de erros definido em cool.y */
+extern int error_count;
+
+/* Antes de cada regra, guarda a linha atual em yylloc (usado pelo Bison) */
+#define YY_USER_ACTION \
+    yylloc.first_line = yylloc.last_line = yylineno;
 
 int comment_depth = 0;
 
@@ -18,7 +26,7 @@ void add_char_to_string(char c) {
 }
 %}
 
-%option noyywrap
+%option noyywrap yylineno nounput noinput
 
 %x COMMENT
 %x STRING
@@ -49,10 +57,12 @@ void add_char_to_string(char c) {
     /* BOOLEANOS */
 
 t[rR][uU][eE] {
+    yylval.str = strdup("true");
     return BOOL_CONST;
 }
 
 f[aA][lL][sS][eE] {
+    yylval.str = strdup("false");
     return BOOL_CONST;
 }
 
@@ -89,7 +99,8 @@ f[aA][lL][sS][eE] {
 }
 
 <COMMENT><<EOF>> {
-    printf("ERRO: EOF dentro de comentario\n");
+    fprintf(stderr, "ERRO LEXICO (linha %d): EOF dentro de comentario\n", yylineno);
+    error_count++;
     return 0;
 }
 
@@ -186,10 +197,12 @@ f[aA][lL][sS][eE] {
 
 <STRING>\" {
     if (string_error) {
-        printf("ERRO: string maior que 1024 caracteres\n");
+        fprintf(stderr, "ERRO LEXICO (linha %d): string maior que 1024 caracteres\n", yylineno);
+        error_count++;
         BEGIN(INITIAL);
     } else {
         string_buffer[string_pos] = '\0';
+        yylval.str = strdup(string_buffer);
         BEGIN(INITIAL);
         return STR_CONST;
     }
@@ -224,12 +237,14 @@ f[aA][lL][sS][eE] {
 }
 
 <STRING>\n {
-    printf("ERRO: newline dentro de string\n");
+    fprintf(stderr, "ERRO LEXICO (linha %d): newline dentro de string\n", yylineno - 1);
+    error_count++;
     BEGIN(INITIAL);
 }
 
 <STRING><<EOF>> {
-    printf("ERRO: EOF dentro de string\n");
+    fprintf(stderr, "ERRO LEXICO (linha %d): EOF dentro de string\n", yylineno);
+    error_count++;
     return 0;
 }
 
@@ -237,6 +252,7 @@ f[aA][lL][sS][eE] {
     /* INTEIROS */
 
 [0-9]+ {
+    yylval.str = strdup(yytext);
     return INT_CONST;
 }
 
@@ -244,6 +260,7 @@ f[aA][lL][sS][eE] {
     /* IDENTIFICADORES DE OBJETO */
 
 [a-z][A-Za-z0-9_]* {
+    yylval.str = strdup(yytext);
     return OBJECT_ID;
 }
 
@@ -251,6 +268,7 @@ f[aA][lL][sS][eE] {
     /* IDENTIFICADORES DE TIPO */
 
 [A-Z][A-Za-z0-9_]* {
+    yylval.str = strdup(yytext);
     return TYPE_ID;
 }
 
@@ -264,7 +282,8 @@ f[aA][lL][sS][eE] {
     /* ERRO LÉXICO */
 
 . {
-    printf("ERRO LEXICO: caractere invalido: %s\n", yytext);
+    fprintf(stderr, "ERRO LEXICO (linha %d): caractere invalido: %s\n", yylineno, yytext);
+    error_count++;
 }
 
 %%

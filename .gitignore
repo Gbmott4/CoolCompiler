@@ -6,3 +6,10 @@ cool
 
 # Arquivos objeto
 *.o
+# Gerados pelo make
+cool.tab.c
+cool.tab.h
+cool-parser
+
+# Python
+__pycache__/

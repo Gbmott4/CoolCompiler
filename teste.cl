@@ -11,7 +11,7 @@ class Main inherits IO {
             x <- (2 + 3) * 4;
 
             -- Comparação
-            if x <= 20 then
+            if x <= 20
                 out_string("OK\n")
             else
                 out_string("ERRO\n")
@@ -27,3 +27,13 @@ class Main inherits IO {
         }
     };
 };
+
+(*
+class Main {
+
+    main() : Int {
+        10 $ 20
+    };
+
+};
+*)
