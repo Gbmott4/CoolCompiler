@@ -157,6 +157,12 @@ teste("retorno incompatível", prog(classe("A", "Object", [
     metodo("f", [], "Int", texto("x"), 2)]), main_ok()), "incompatível com o retorno")
 teste("let: init não enxerga a própria variável", prog(main_ok(
     let("a", "Int", obj("a", 3), obj("a"), 3))), "'a' não declarado")
+for nome in ("CoolObject", "CoolInt", "CoolBool", "CoolString", "CoolRuntime"):
+    teste(f"classe com nome reservado {nome}",
+          prog(classe(nome, "Object", [], 2), main_ok()), "nome reservado pelo runtime")
+teste("nome parecido com reservado é permitido", prog(classe("Cool", "Object", []), main_ok()))
+teste("constante inteira no limite (2147483647)", prog(main_ok(inteiro(2147483647))))
+teste("constante inteira fora do intervalo", prog(main_ok(inteiro(2147483648, 3))), "fora do intervalo")
 teste("static_type é preenchido", prog(main_ok(plus(inteiro(1), inteiro(2)))))
 
 a = analisar(prog(main_ok(plus(inteiro(1), inteiro(2)))))

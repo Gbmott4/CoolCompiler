@@ -1,5 +1,6 @@
 """Etapas 1 a 3: classes básicas, classes do usuário e grafo de herança."""
-from .constantes import OBJECT, IO, INT, STRING, BOOL, SELF_TYPE, NAO_HERDAVEIS
+from .constantes import (OBJECT, IO, INT, STRING, BOOL, SELF_TYPE, NAO_HERDAVEIS,
+                         RESERVADOS_JVM)
 from .modelos import ClassInfo, MethodSig
 
 
@@ -44,6 +45,10 @@ class ClassesMixin:
         for c in self.program.classes:
             if c.name == SELF_TYPE:
                 self.error(c.line, "SELF_TYPE não pode ser nome de classe")
+                continue
+            if c.name in RESERVADOS_JVM:
+                self.error(c.line, f"'{c.name}' é um nome reservado pelo runtime da JVM "
+                                   "e não pode ser nome de classe")
                 continue
             if c.name in self.classes:
                 self.error(c.line, f"classe '{c.name}' já foi definida")

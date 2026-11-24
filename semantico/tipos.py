@@ -78,6 +78,9 @@ class TiposMixin:
 
     def _tipo(self, e, env):
         if isinstance(e, A.IntConst):
+            if e.value > 2147483647:
+                self.error(e.line, f"constante inteira {e.value} fora do intervalo "
+                                    "permitido (máximo 2147483647)")
             return INT
         if isinstance(e, A.StringConst):
             return STRING
